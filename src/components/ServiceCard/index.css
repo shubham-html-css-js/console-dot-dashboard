@@ -1,0 +1,32 @@
+.service-card{
+    min-width: 450px;
+    max-width: 450px;
+    height: 250px;
+    background-color: black;
+    margin: 10px;
+    color: white;
+    border-radius: 10px;
+}
+
+.card-Title
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.card-Version
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-result
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
