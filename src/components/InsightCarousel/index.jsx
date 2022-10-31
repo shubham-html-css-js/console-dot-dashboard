@@ -11,7 +11,7 @@ const InsightCarousel = () => {
         var url = process.env.REACT_APP_QUERY_URL;
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", url);
+        xhr.open("GET", url);
         
         xhr.setRequestHeader("Content-Type", "application/json");
         
@@ -26,7 +26,7 @@ const InsightCarousel = () => {
         var dataTwo= '{"query":{"term":{"product.keyword":{"value":"Insights Engine"}}}}';
         xhr.send(dataOne);
         var xhrTwo= new XMLHttpRequest();
-        xhrTwo.open("POST", url);
+        xhrTwo.open("GET", url);
         xhrTwo.setRequestHeader("Content-Type", "application/json");
         
         xhrTwo.onreadystatechange = function () {
