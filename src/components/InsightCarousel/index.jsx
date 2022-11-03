@@ -42,22 +42,32 @@ const InsightCarousel = () => {
       })
       .catch((e) => console.log(e));
   }, []);
-  const goPrev = () => {};
+  const goPrev = (number) => {
+    let screen = document.querySelector(`.scrollable-container-${number}`);
+    let width = screen.clientWidth;
+    screen.scrollLeft = screen.scrollLeft - width;
+  };
 
-  const goNext = () => {};
+  const goNext = (number) => {
+    let screen = document.querySelector(`.scrollable-container-${number}`);
+    let width = screen.clientWidth;
+    screen.scrollLeft = screen.scrollLeft + width;
+  };
   return (
     <div className="insight-carousel">
-      {productList?.map((data) => {
+      {productList?.map((data, i) => {
         return (
           <>
             <div className="product-title">
               {data.data.hits.hits[0]._source.product}
             </div>
-            <div className="insight-carousel-container">
-              <button className="prev-btn" onClick={goPrev}>
+            <div
+              className={`insight-carousel-container scrollable-container-${i}`}
+            >
+              <button className="prev-btn" onClick={() => goPrev(i)}>
                 <p>&lt;</p>
               </button>
-              <button className="next-btn" onClick={goNext}>
+              <button className="next-btn" onClick={() => goNext(i)}>
                 <p>&gt;</p>
               </button>
               {data.data.hits.hits.map((point) => {
