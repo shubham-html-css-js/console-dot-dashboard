@@ -1,64 +1,74 @@
-import React, { useEffect } from 'react'
-import { useState } from 'react'
-import axios from 'axios'
-import ServiceCard from '../ServiceCard';
-import './index.css'
-
+import React, { useEffect } from "react";
+import axios from "axios";
+import { useState } from "react";
+import "./index.css";
+import ServiceCard from "../ServiceCard";
 const InsightCarousel = () => {
-    const [data,setData]=useState([]);
-    const [dataTwo,setDataTwo]=useState([]);
-    useEffect(()=>{
-        var url = process.env.REACT_APP_QUERY_URL;
+  const [productList, setProductList] = useState([]);
+  useEffect(() => {
+    let url = process.env.REACT_APP_QUERY_URL;
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    let data = {
+      size: 0,
+      aggs: {
+        products: { terms: { field: "product.keyword", size: 500 } },
+      },
+    };
+    let promise = [];
+    axios
+      .post(url, data, { headers })
+      .then((res) => {
+        for (
+          let i = 0;
+          i < res.data.aggregations.products.buckets.length;
+          i++
+        ) {
+          let newData = {
+            query: {
+              term: {
+                "product.keyword": {
+                  value: `${res.data.aggregations.products.buckets[i].key}`,
+                },
+              },
+            },
+          };
+          promise.push(axios.post(url, newData, { headers }));
+        }
+        Promise.all(promise).then((res) => {
+          setProductList(res);
+        });
+      })
+      .catch((e) => console.log(e));
+  }, []);
+  const goPrev = () => {};
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", url);
-        
-        xhr.setRequestHeader("Content-Type", "application/json");
-        
-        xhr.onreadystatechange = function () {
-           if (xhr.readyState === 4) {
-              const resJSON=JSON.parse(xhr.response);
-              setData(resJSON.hits.hits);
-              console.log(resJSON.hits.hits)
-           }};
-        
-        var dataOne = '{"query":{"term":{"product.keyword":{"value":"Red Hat Satellite"}}}}';
-        var dataTwo= '{"query":{"term":{"product.keyword":{"value":"Insights Engine"}}}}';
-        xhr.send(dataOne);
-        var xhrTwo= new XMLHttpRequest();
-        xhrTwo.open("POST", url);
-        xhrTwo.setRequestHeader("Content-Type", "application/json");
-        
-        xhrTwo.onreadystatechange = function () {
-           if (xhrTwo.readyState === 4) {
-              const resJSON=JSON.parse(xhrTwo.response);
-              setDataTwo(resJSON.hits.hits);
-              console.log(resJSON.hits.hits)
-           }};
-        xhrTwo.send(dataTwo);
-    },[])
+  const goNext = () => {};
   return (
-    <div className='insight-carousel'>
-        <div className='product-title'>Red Hat Satellite</div>
-        <div className='insight-carousel-container'>
-            {
-                data?.map(dataPoint=>{
-                    return <ServiceCard cardContent={dataPoint}></ServiceCard>
-                })
-            }            
-        </div>
-        <div className='product-title'>Insights Engine</div>
-        <div className='insight-carousel-container'>
-            {
-                dataTwo?.map(dataPoint=>{
-                    return <ServiceCard cardContent={dataPoint}></ServiceCard>
-                })
-            }            
-        </div>
-    </div>  
-    
-    )
+    <div className="insight-carousel">
+      {productList?.map((data) => {
+        return (
+          <>
+            <div className="product-title">
+              {data.data.hits.hits[0]._source.product}
+            </div>
+            <div className="insight-carousel-container">
+              <button className="prev-btn" onClick={goPrev}>
+                <p>&lt;</p>
+              </button>
+              <button className="next-btn" onClick={goNext}>
+                <p>&gt;</p>
+              </button>
+              {data.data.hits.hits.map((point) => {
+                return <ServiceCard cardContent={point}></ServiceCard>;
+              })}
+            </div>
+          </>
+        );
+      })}
+    </div>
+  );
+};
 
-}
-
-export default InsightCarousel
+export default InsightCarousel;

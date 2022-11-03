@@ -1,13 +1,49 @@
-.insight-carousel-container{
+.insight-carousel {
+    position: relative;
+    overflow: hidden;
+    padding: 40px;
+}
+
+.insight-carousel-container {
 
     display: flex;
 
 }
 
-.product-title
-{
+.product-title {
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 50px;
+}
+
+.prev-btn,
+.next-btn {
+
+    border: none;
+    outline: none;
+    width: 60px;
+    height: 40%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.prev-btn {
+    left: 0;
+}
+
+.next-btn {
+    right: 20px;
+}
+
+.next-btn p,
+.prev-btn p {
+    font-size: 40px;
+    background-color: rgba(255, 255, 255, 0.436);
+    box-shadow: 0px 0px 5px 5px black;
+    border-radius: 5px;
+    cursor: pointer;
 }
