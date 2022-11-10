@@ -6,6 +6,7 @@
     margin: 10px;
     color: white;
     border-radius: 10px;
+    font-size: 20px;
 }
 
 .card-Title
@@ -16,7 +17,7 @@
   margin-bottom: 80px;
 }
 
-.card-Version
+.card-Version,.card-result
 {
     display: flex;
     justify-content: center;
@@ -24,9 +25,14 @@
     margin-bottom: 20px;
 }
 
-.card-result
+.card-link
 {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.result-link
+{
+    text-decoration: none;
+    cursor: pointer;
 }
