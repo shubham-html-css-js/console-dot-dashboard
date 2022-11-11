@@ -9,6 +9,9 @@ const ServiceCard = ({cardContent}) => {
         <div className='card-Version'>
         Version : {cardContent._source.version}    
         </div>
+        <div className='card-date'>
+          Date: {cardContent._source.date}
+        </div>
         <div className='card-result'>
         Result : {cardContent._source.result}
         </div>

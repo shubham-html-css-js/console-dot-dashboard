@@ -70,7 +70,7 @@ const InsightCarousel = () => {
               <button className="next-btn" onClick={() => goNext(i)}>
                 <p>&gt;</p>
               </button>
-              {data.data.hits.hits.map((point) => {
+              {data.data.hits.hits.sort((a,b)=>a._source.date < b._source.date ? 1 : -1).map((point) => {
                 return <ServiceCard cardContent={point}></ServiceCard>;
               })}
             </div>

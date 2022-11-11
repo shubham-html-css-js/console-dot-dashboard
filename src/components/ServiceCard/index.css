@@ -1,12 +1,12 @@
 .service-card{
     min-width: 450px;
     max-width: 450px;
-    height: 250px;
+    height: 300px;
     background-color: black;
     margin: 10px;
     color: white;
     border-radius: 10px;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .card-Title
@@ -17,7 +17,7 @@
   margin-bottom: 80px;
 }
 
-.card-Version,.card-result
+.card-Version,.card-result,.card-date
 {
     display: flex;
     justify-content: center;
