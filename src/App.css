@@ -2,3 +2,11 @@
   margin: 0px;
   padding: 0px;
 }
+
+#light .App {
+  background-color: white;
+}
+
+#dark .App {
+  background-color: #121212;
+}

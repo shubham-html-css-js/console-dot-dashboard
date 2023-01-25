@@ -3,8 +3,12 @@ import axios from "axios";
 import { useState } from "react";
 import "./index.css";
 import ServiceCard from "../ServiceCard";
+import ReactSwitch from "react-switch";
+import { useContext } from "react";
+import { ThemeContext } from "../../App";
 const InsightCarousel = () => {
   const [productList, setProductList] = useState([]);
+  const themeValue = useContext(ThemeContext);
   useEffect(() => {
     let url = process.env.REACT_APP_QUERY_URL;
     const headers = {
@@ -54,11 +58,30 @@ const InsightCarousel = () => {
     screen.scrollLeft = screen.scrollLeft + width;
   };
   return (
-    <div className="insight-carousel">
+    <div className="insight-carousel" id={themeValue.theme}>
+      <label className="switch-label">
+        <div className="switch-div">
+          <span className="switch-text" id={themeValue.theme}>
+            {themeValue.theme === "light" ? "Light Mode" : "Dark Mode"}
+          </span>
+          <ReactSwitch
+            height={20}
+            width={44}
+            onChange={themeValue.toggleTheme}
+            onColor="#86d3ff"
+            onHandleColor="#2693e6"
+            uncheckedIcon={false}
+            checkedIcon={false}
+            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+            activeBoxShadow="0px 0px 1px 2px rgba(0, 0, 0, 0.2)"
+            checked={themeValue.theme === "light" ? false : true}
+          />
+        </div>
+      </label>
       {productList?.map((data, i) => {
         return (
           <>
-            <div className="product-title">
+            <div className="product-title" id={themeValue.theme}>
               {data.data.hits.hits[0]._source.product}
             </div>
             <div
