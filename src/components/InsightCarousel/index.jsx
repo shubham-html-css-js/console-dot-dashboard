@@ -30,6 +30,7 @@ const InsightCarousel = () => {
           i++
         ) {
           let newData = {
+            size:10000,
             query: {
               term: {
                 "product.keyword": {

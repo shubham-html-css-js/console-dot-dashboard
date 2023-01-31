@@ -4,6 +4,8 @@ import "./App.css";
 import InsightCarousel from "./components/InsightCarousel";
 import ReactSwitch from "react-switch";
 import { useState } from "react";
+import SummaryCarousel from "./components/SummaryCarousel";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export const ThemeContext = React.createContext(null);
 
@@ -15,7 +17,12 @@ function App() {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <div className="App" id={theme}>
-        <InsightCarousel />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<SummaryCarousel />}></Route>
+            <Route path="/insights-view" element={<InsightCarousel />}></Route>
+          </Routes>
+        </BrowserRouter>
       </div>
     </ThemeContext.Provider>
   );
