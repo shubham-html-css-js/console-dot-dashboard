@@ -111,9 +111,9 @@ function App() {
                   .set(curr[i]._source.version, obj_map);
               }
             }
-            setSummaryMap(curr_Map);
           }
         }
+        setSummaryMap(curr_Map);
       })
       .catch((e) => {
         console.log(e);
