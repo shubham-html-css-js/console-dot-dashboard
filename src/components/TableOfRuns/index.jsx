@@ -10,7 +10,6 @@ const TableOfRuns = () => {
   const params = useParams();
   const { group_name, product_name } = params;
   const version_number = params["*"];
-  console.log(group_name,product_name,version_number)
   const dataValue = useContext(DataContext);
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => {
