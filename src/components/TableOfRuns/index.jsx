@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useTable } from "react-table";
+import { usePagination, useTable } from "react-table";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { DataContext } from "../../App";
@@ -25,12 +25,30 @@ const TableOfRuns = () => {
         ?.get(version_number)["test_list"];
     else return [];
   }, [dataValue, group_name, product_name, version_number]);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    nextPage,
+    previousPage,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    state,
+    gotoPage,
+    pageCount,
+    setPageSize,
+    prepareRow,
+  } = useTable(
+    {
       columns,
       data: data,
-    });
+    },
+    usePagination
+  );
 
+  const { pageIndex, pageSize } = state;
   return (
     <>
       <table {...getTableProps()}>
@@ -44,7 +62,7 @@ const TableOfRuns = () => {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows?.map((row) => {
+          {page?.map((row) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}>
@@ -65,6 +83,68 @@ const TableOfRuns = () => {
           })}
         </tbody>
       </table>
+      <div className="pagination-div">
+        <button
+          onClick={() => gotoPage(0)}
+          disabled={!canPreviousPage}
+          className="first-page-btn"
+        >
+          {"<<"}
+        </button>{" "}
+        <button
+          onClick={() => previousPage()}
+          disabled={!canPreviousPage}
+          className="prev-page-btn"
+        >
+          Previous
+        </button>{" "}
+        <button
+          onClick={() => nextPage()}
+          disabled={!canNextPage}
+          className="next-page-btn"
+        >
+          Next
+        </button>{" "}
+        <button
+          onClick={() => gotoPage(pageCount - 1)}
+          disabled={!canNextPage}
+          className="last-page-btn"
+        >
+          {">>"}
+        </button>{" "}
+        <span className="pagination-text">
+          Page{" "}
+          <strong>
+            {pageIndex + 1} of {pageOptions.length}
+          </strong>{" "}
+        </span>
+        <span className="input-text">
+          | Go to page:{" "}
+          <input
+            type="number"
+            defaultValue={pageIndex + 1}
+            onChange={(e) => {
+              const pageNumber = e.target.value
+                ? Number(e.target.value) - 1
+                : 0;
+              gotoPage(pageNumber);
+            }}
+            style={{ width: "50px" }}
+          />
+        </span>{" "}
+        <span className="select-container">
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+          >
+            {[10, 25, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </span>
+      </div>
     </>
   );
 };

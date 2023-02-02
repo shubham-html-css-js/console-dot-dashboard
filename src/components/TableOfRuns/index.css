@@ -25,3 +25,31 @@ table th {
     background-color: #4caf50;
     color: white;
 }
+.pagination-div{
+    display: flex;
+    justify-content: end;
+    padding: 20px;
+}
+.first-page-btn,.prev-page-btn,.next-page-btn,.last-page-btn{
+    margin: 5px;
+    padding: 5px;
+}
+.pagination-text{
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.input-text{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.select-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+select{
+    height: 20px;
+}
