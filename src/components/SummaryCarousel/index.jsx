@@ -180,10 +180,12 @@ function SummaryCarousel() {
                                     </div>
                                     <div className="pass-percent">
                                       PASS_PERCENTAGE:{" "}
-                                      {(version[1]["pass"] /
-                                        (version[1]["pass"] +
-                                          version[1]["fail"])) *
-                                        100}
+                                      {(
+                                        (version[1]["pass"] /
+                                          (version[1]["pass"] +
+                                            version[1]["fail"])) *
+                                        100
+                                      ).toFixed(2)}
                                     </div>
                                   </div>
                                 </>
