@@ -27,14 +27,18 @@ function SummaryCarousel() {
   const dataValue = useContext(DataContext);
   const loadingValue = useContext(LoadingContext);
   const navigate = useNavigate();
-  const goPrev = (number) => {
-    let screen = document.querySelector(`.scrollable-container-${number}`);
+  const goPrev = (service, number) => {
+    let screen = document.querySelector(
+      `.scrollable-container-${service.split(" ").join("_")}-${number}`
+    );
     let width = screen.clientWidth;
     screen.scrollLeft = screen.scrollLeft - width;
   };
 
-  const goNext = (number) => {
-    let screen = document.querySelector(`.scrollable-container-${number}`);
+  const goNext = (service, number) => {
+    let screen = document.querySelector(
+      `.scrollable-container-${service.split(" ").join("_")}-${number}`
+    );
     let width = screen.clientWidth;
     screen.scrollLeft = screen.scrollLeft + width;
   };
@@ -93,17 +97,19 @@ function SummaryCarousel() {
                       <>
                         <div className="service-title">{service}</div>
                         <div
-                          className={`insight-carousel-container scrollable-container-${i}`}
+                          className={`insight-carousel-container scrollable-container-${service
+                            .split(" ")
+                            .join("_")}-${i}`}
                         >
                           <button
                             className="prev-btn"
-                            onClick={() => goPrev(i)}
+                            onClick={() => goPrev(service, i)}
                           >
                             <p>&lt;</p>
                           </button>
                           <button
                             className="next-btn"
-                            onClick={() => goNext(i)}
+                            onClick={() => goNext(service, i)}
                           >
                             <p>&gt;</p>
                           </button>
@@ -114,10 +120,8 @@ function SummaryCarousel() {
                               ?.entries()
                           )
                             .sort((a, b) =>
-                              a[1]["test_list"][0]
-                                .date <
-                              b[1]["test_list"][0]
-                                .date
+                              a[1]["test_list"][0].date <
+                              b[1]["test_list"][0].date
                                 ? 1
                                 : -1
                             )
