@@ -26,7 +26,7 @@ function App() {
         let curr = res.data.hits.hits;
         let curr_Map = new Map();
         for (let i = 0; i < curr.length; i++) {
-          if (curr_Map.has(curr[i]._source.group) == false) {
+          if (curr_Map.has(curr[i]._source.group) === false) {
             curr_Map.set(curr[i]._source.group, new Map());
             curr_Map
               .get(curr[i]._source.group)
@@ -35,8 +35,8 @@ function App() {
               .get(curr[i]._source.group)
               .get(curr[i]._source.product)
               .set(curr[i]._source.version, {
-                pass: curr[i]._source.result == "PASS" ? 1 : 0,
-                fail: curr[i]._source.result == "PASS" ? 0 : 1,
+                pass: curr[i]._source.result === "PASS" ? 1 : 0,
+                fail: curr[i]._source.result === "PASS" ? 0 : 1,
                 test_list: [
                   new Object({
                     date: curr[i]._source.date,
@@ -49,7 +49,7 @@ function App() {
             if (
               curr_Map
                 .get(curr[i]._source.group)
-                .has(curr[i]._source.product) == false
+                .has(curr[i]._source.product) === false
             ) {
               curr_Map
                 .get(curr[i]._source.group)
@@ -58,8 +58,8 @@ function App() {
                 .get(curr[i]._source.group)
                 .get(curr[i]._source.product)
                 .set(curr[i]._source.version, {
-                  pass: curr[i]._source.result == "PASS" ? 1 : 0,
-                  fail: curr[i]._source.result == "PASS" ? 0 : 1,
+                  pass: curr[i]._source.result === "PASS" ? 1 : 0,
+                  fail: curr[i]._source.result === "PASS" ? 0 : 1,
                   test_list: [
                     new Object({
                       date: curr[i]._source.date,
@@ -73,14 +73,14 @@ function App() {
                 curr_Map
                   .get(curr[i]._source.group)
                   .get(curr[i]._source.product)
-                  .has(curr[i]._source.version) == false
+                  .has(curr[i]._source.version) === false
               )
                 curr_Map
                   .get(curr[i]._source.group)
                   .get(curr[i]._source.product)
                   .set(curr[i]._source.version, {
-                    pass: curr[i]._source.result == "PASS" ? 1 : 0,
-                    fail: curr[i]._source.result == "PASS" ? 0 : 1,
+                    pass: curr[i]._source.result === "PASS" ? 1 : 0,
+                    fail: curr[i]._source.result === "PASS" ? 0 : 1,
                     test_list: [
                       new Object({
                         date: curr[i]._source.date,
@@ -95,10 +95,18 @@ function App() {
                   .get(curr[i]._source.product)
                   .get(curr[i]._source.version);
                 obj_map["pass"] =
-                  obj_map["pass"] + (curr[i]._source.result == "PASS" ? 1 : 0);
+                  obj_map["pass"] + (curr[i]._source.result === "PASS" ? 1 : 0);
                 obj_map["fail"] =
-                  obj_map["fail"] + (curr[i]._source.result == "PASS" ? 0 : 1);
-                obj_map.test_list.push(
+                  obj_map["fail"] + (curr[i]._source.result === "PASS" ? 0 : 1);
+                let loc = findLocation(
+                  obj_map.test_list,
+                  curr[i]._source.date,
+                  0,
+                  obj_map.test_list.length - 1
+                );
+                obj_map.test_list.splice(
+                  loc,
+                  0,
                   new Object({
                     date: curr[i]._source.date,
                     result: curr[i]._source.result,
@@ -121,6 +129,14 @@ function App() {
   }, []);
   const toggleTheme = () => {
     setTheme((curr) => (curr === "light" ? "dark" : "light"));
+  };
+  const findLocation = (mp, test_date, start, end) => {
+    while (start <= end) {
+      let mid = Math.floor((start + end) / 2);
+      if (mp[mid].date < test_date) start = mid + 1;
+      else end = mid - 1;
+    }
+    return start;
   };
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

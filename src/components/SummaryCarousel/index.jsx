@@ -1,8 +1,6 @@
-import axios from "axios";
-import React, { version } from "react";
+import React from "react";
 import { useContext } from "react";
 import { useState } from "react";
-import { useEffect } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import ReactSwitch from "react-switch";
@@ -21,7 +19,6 @@ const customStyles = {
 };
 
 function SummaryCarousel() {
-  const [summaryMap, setSummaryMap] = useState(new Map());
   const [isOpen, setIsOpen] = useState(false);
   const [modalData, setModalData] = useState([]);
   const [chosenData, setChosenData] = useState({});
@@ -92,57 +89,66 @@ function SummaryCarousel() {
                             ?.get(data)
                             ?.get(service)
                             ?.entries()
-                        ).map((version, i) => {
-                          return (
-                            <>
-                              <div
-                                className="service-card"
-                                onClick={() =>
-                                  openModal(
-                                    version[1]["test_list"],
-                                    data,
-                                    service,
-                                    version[0]
-                                  )
-                                }
-                                style={{
-                                  backgroundColor:
-                                    (version[1]["pass"] /
+                        )
+                          .sort((a, b) =>
+                            a[1]["test_list"][a[1]["test_list"].length - 1]
+                              .date <
+                            b[1]["test_list"][b[1]["test_list"].length - 1].date
+                              ? 1
+                              : -1
+                          )
+                          .map((version, i) => {
+                            return (
+                              <>
+                                <div
+                                  className="service-card"
+                                  onClick={() =>
+                                    openModal(
+                                      version[1]["test_list"],
+                                      data,
+                                      service,
+                                      version[0]
+                                    )
+                                  }
+                                  style={{
+                                    backgroundColor:
+                                      (version[1]["pass"] /
+                                        (version[1]["pass"] +
+                                          version[1]["fail"])) *
+                                        100 >=
+                                      50
+                                        ? `${themeValue.theme}` === "dark"
+                                          ? "#3EB489"
+                                          : "green"
+                                        : `${themeValue.theme}` === "dark"
+                                        ? "#CF6679"
+                                        : "red",
+                                  }}
+                                >
+                                  <div className="card-Version">
+                                    Version : {version[0]}
+                                  </div>
+                                  <div className="total-count">
+                                    TOTAL TESTS :{" "}
+                                    {version[1]["pass"] + version[1]["fail"]}
+                                  </div>
+                                  <div className="pass-count">
+                                    PASSED TESTS : {version[1]["pass"]}
+                                  </div>
+                                  <div className="fail-count">
+                                    FAILED TESTS: {version[1]["fail"]}
+                                  </div>
+                                  <div className="pass-percent">
+                                    PASS_PERCENTAGE:{" "}
+                                    {(version[1]["pass"] /
                                       (version[1]["pass"] +
                                         version[1]["fail"])) *
-                                      100 >=
-                                    50
-                                      ? `${themeValue.theme}` === "dark"
-                                        ? "#3EB489"
-                                        : "green"
-                                      : `${themeValue.theme}` === "dark"
-                                      ? "#CF6679"
-                                      : "red",
-                                }}
-                              >
-                                <div className="card-Version">
-                                  Version : {version[0]}
+                                      100}
+                                  </div>
                                 </div>
-                                <div className="total-count">
-                                  TOTAL TESTS :{" "}
-                                  {version[1]["pass"] + version[1]["fail"]}
-                                </div>
-                                <div className="pass-count">
-                                  PASSED TESTS : {version[1]["pass"]}
-                                </div>
-                                <div className="fail-count">
-                                  FAILED TESTS: {version[1]["fail"]}
-                                </div>
-                                <div className="pass-percent">
-                                  PASS_PERCENTAGE:{" "}
-                                  {(version[1]["pass"] /
-                                    (version[1]["pass"] + version[1]["fail"])) *
-                                    100}
-                                </div>
-                              </div>
-                            </>
-                          );
-                        })}
+                              </>
+                            );
+                          })}
                       </div>
                     </>
                   );
