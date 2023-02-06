@@ -8,10 +8,12 @@ import TableOfRuns from "./components/TableOfRuns";
 
 export const ThemeContext = React.createContext(null);
 export const DataContext = React.createContext(null);
+export const LoadingContext = React.createContext(null);
 
 function App() {
   const [theme, setTheme] = useState("light");
   const [summaryMap, setSummaryMap] = useState(new Map());
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     let url = process.env.REACT_APP_QUERY_URL;
     const headers = {
@@ -122,6 +124,7 @@ function App() {
           }
         }
         setSummaryMap(curr_Map);
+        setIsLoading(false);
       })
       .catch((e) => {
         console.log(e);
@@ -141,17 +144,19 @@ function App() {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <DataContext.Provider value={{ summaryMap }}>
-        <div className="App" id={theme}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<SummaryCarousel />}></Route>
-              <Route
-                path="/table-view/:group_name/:product_name/*"
-                element={<TableOfRuns />}
-              ></Route>
-            </Routes>
-          </BrowserRouter>
-        </div>
+        <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+          <div className="App" id={theme}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<SummaryCarousel />}></Route>
+                <Route
+                  path="/table-view/:group_name/:product_name/*"
+                  element={<TableOfRuns />}
+                ></Route>
+              </Routes>
+            </BrowserRouter>
+          </div>
+        </LoadingContext.Provider>
       </DataContext.Provider>
     </ThemeContext.Provider>
   );
