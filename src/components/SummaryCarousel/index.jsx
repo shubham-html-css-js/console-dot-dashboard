@@ -98,6 +98,30 @@ function SummaryCarousel() {
                               : -1
                           )
                           .map((version, i) => {
+                            let darkColor, lightColor;
+                            const pass_percent =
+                              (version[1]["pass"] /
+                                (version[1]["pass"] + version[1]["fail"])) *
+                              100;
+                            if (pass_percent >= 75 && pass_percent <= 100) {
+                              darkColor = "#3EB489";
+                              lightColor = "green";
+                            } else if (
+                              pass_percent >= 50 &&
+                              pass_percent < 75
+                            ) {
+                              darkColor = "#aa9208";
+                              lightColor = "#8B8000";
+                            } else if (
+                              pass_percent >= 25 &&
+                              pass_percent < 50
+                            ) {
+                              darkColor = "#FDA172";
+                              lightColor = "orange";
+                            } else {
+                              darkColor = "#CF6679";
+                              lightColor = "red";
+                            }
                             return (
                               <>
                                 <div
@@ -112,17 +136,9 @@ function SummaryCarousel() {
                                   }
                                   style={{
                                     backgroundColor:
-                                      (version[1]["pass"] /
-                                        (version[1]["pass"] +
-                                          version[1]["fail"])) *
-                                        100 >=
-                                      50
-                                        ? `${themeValue.theme}` === "dark"
-                                          ? "#3EB489"
-                                          : "green"
-                                        : `${themeValue.theme}` === "dark"
-                                        ? "#CF6679"
-                                        : "red",
+                                      `${themeValue.theme}` === "dark"
+                                        ? darkColor
+                                        : lightColor,
                                   }}
                                 >
                                   <div className="card-Version">
