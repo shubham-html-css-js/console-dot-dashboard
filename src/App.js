@@ -136,7 +136,7 @@ function App() {
   const findLocation = (mp, test_date, start, end) => {
     while (start <= end) {
       let mid = Math.floor((start + end) / 2);
-      if (mp[mid].date < test_date) start = mid + 1;
+      if (mp[mid].date > test_date) start = mid + 1;
       else end = mid - 1;
     }
     return start;

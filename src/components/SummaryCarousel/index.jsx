@@ -114,9 +114,9 @@ function SummaryCarousel() {
                               ?.entries()
                           )
                             .sort((a, b) =>
-                              a[1]["test_list"][a[1]["test_list"].length - 1]
+                              a[1]["test_list"][0]
                                 .date <
-                              b[1]["test_list"][b[1]["test_list"].length - 1]
+                              b[1]["test_list"][0]
                                 .date
                                 ? 1
                                 : -1
