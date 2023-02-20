@@ -173,24 +173,13 @@ function SummaryCarousel() {
                                     <div className="card-Version" data-tooltip-id="version-tooltip" data-tooltip-place="top" data-tooltip-content={version[0]}>
                                       Version : {version[0].split(":")[1]===undefined?version[0]:version[0].split(":")[1]}
                                     </div>
-                                    <div className="total-count">
-                                      TOTAL TESTS :{" "}
-                                      {version[1]["pass"] + version[1]["fail"]}
-                                    </div>
-                                    <div className="pass-count">
-                                      PASSED TESTS : {version[1]["pass"]}
-                                    </div>
-                                    <div className="fail-count">
-                                      FAILED TESTS: {version[1]["fail"]}
-                                    </div>
-                                    <div className="pass-percent">
-                                      PASS_PERCENTAGE:{" "}
+                                    <div className="percentage" data-tooltip-id="percentage-tooltip" data-tooltip-place="top" data-tooltip-content={"Total: " + (version[1]["pass"] + version[1]["fail"]) + ", pass: " + version[1]["pass"] + ", fail: " + version[1]["fail"]}>
                                       {(
                                         (version[1]["pass"] /
                                           (version[1]["pass"] +
                                             version[1]["fail"])) *
                                         100
-                                      ).toFixed(2)}
+                                      ).toFixed(2)}%
                                     </div>
                                   </div>
                                 </>
@@ -206,6 +195,7 @@ function SummaryCarousel() {
           })}
         </div>
         <Tooltip id="version-tooltip"/>
+        <Tooltip id="percentage-tooltip"/>
         <Modal
           isOpen={isOpen}
           contentLabel="Test Modal"
