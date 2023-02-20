@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ReactSwitch from "react-switch";
 import { DataContext, LoadingContext, ThemeContext } from "../../App";
 import { Circles } from "react-loader-spinner";
+import { Tooltip } from 'react-tooltip'
 import "./index.css";
 
 const customStyles = {
@@ -169,8 +170,8 @@ function SummaryCarousel() {
                                           : lightColor,
                                     }}
                                   >
-                                    <div className="card-Version">
-                                      Version : {version[0]}
+                                    <div className="card-Version" data-tooltip-id="version-tooltip" data-tooltip-place="top" data-tooltip-content={version[0]}>
+                                      Version : {version[0].split(":")[1]===undefined?version[0]:version[0].split(":")[1]}
                                     </div>
                                     <div className="total-count">
                                       TOTAL TESTS :{" "}
@@ -204,6 +205,7 @@ function SummaryCarousel() {
             );
           })}
         </div>
+        <Tooltip id="version-tooltip"/>
         <Modal
           isOpen={isOpen}
           contentLabel="Test Modal"
