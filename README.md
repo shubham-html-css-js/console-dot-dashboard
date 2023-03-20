@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Containerizing
+
+To build container with this app:
+
+    podman build -f Containerfile -t localhost/console-dot-dashboard .
+
+To run the built container:
+
+    podman run -ti -e REACT_APP_QUERY_URL=http://opensearch.example.com/my_index/_doc/_search --rm --publish 80:80 --name console-dot-dashboard localhost/console-dot-dashboard
