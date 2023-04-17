@@ -1,4 +1,4 @@
-import React from "react";
+import React, { version } from "react";
 import { useContext } from "react";
 import { useState } from "react";
 import Modal from "react-modal";
@@ -6,8 +6,13 @@ import { useNavigate } from "react-router-dom";
 import ReactSwitch from "react-switch";
 import { DataContext, LoadingContext, ThemeContext } from "../../App";
 import { Circles } from "react-loader-spinner";
-import { Tooltip } from 'react-tooltip'
+import { Tooltip } from "react-tooltip";
+import jspdf from "jspdf";
 import "./index.css";
+import jsPDF from "jspdf";
+import autotable from "jspdf-autotable";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const customStyles = {
   content: {
@@ -20,13 +25,36 @@ const customStyles = {
   },
 };
 
+const customStylesTwo = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: "270px",
+  },
+};
+
 function SummaryCarousel() {
   const [isOpen, setIsOpen] = useState(false);
   const [modalData, setModalData] = useState([]);
+  const [generatePdfModal, setGeneratePdfModal] = useState(false);
   const [chosenData, setChosenData] = useState({});
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const themeValue = useContext(ThemeContext);
   const dataValue = useContext(DataContext);
   const loadingValue = useContext(LoadingContext);
+  let total = 0;
+  const doc = new jsPDF();
+
+  let serviceArray = [];
+  let percentageArray = [];
+  let totalArray = [];
+  const tableColumn = ["Service", "Number of test Runs", "Pass Percentage"];
+  const tableRows = [];
   const navigate = useNavigate();
   const goPrev = (service, number) => {
     let screen = document.querySelector(
@@ -50,6 +78,21 @@ function SummaryCarousel() {
   };
   const closeModal = () => {
     setIsOpen(false);
+  };
+  const closePdfModal = () => {
+    setGeneratePdfModal(false);
+  };
+  const formatDate = (date) => {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    var formattedDate = [year, month, day].join("-");
+    return (formattedDate += "T00:00:00.000000+00:00");
   };
   if (loadingValue.isLoading === true)
     return (
@@ -170,16 +213,38 @@ function SummaryCarousel() {
                                           : lightColor,
                                     }}
                                   >
-                                    <div className="card-Version" data-tooltip-id="version-tooltip" data-tooltip-place="top" data-tooltip-content={version[0]}>
-                                      Version : {version[0].split(":")[1]===undefined?version[0]:version[0].split(":")[1]}
+                                    <div
+                                      className="card-Version"
+                                      data-tooltip-id="version-tooltip"
+                                      data-tooltip-place="top"
+                                      data-tooltip-content={version[0]}
+                                    >
+                                      Version :{" "}
+                                      {version[0].split(":")[1] === undefined
+                                        ? version[0]
+                                        : version[0].split(":")[1]}
                                     </div>
-                                    <div className="percentage" data-tooltip-id="percentage-tooltip" data-tooltip-place="top" data-tooltip-content={"Total: " + (version[1]["pass"] + version[1]["fail"]) + ", pass: " + version[1]["pass"] + ", fail: " + version[1]["fail"]}>
+                                    <div
+                                      className="percentage"
+                                      data-tooltip-id="percentage-tooltip"
+                                      data-tooltip-place="top"
+                                      data-tooltip-content={
+                                        "Total: " +
+                                        (version[1]["pass"] +
+                                          version[1]["fail"]) +
+                                        ", pass: " +
+                                        version[1]["pass"] +
+                                        ", fail: " +
+                                        version[1]["fail"]
+                                      }
+                                    >
                                       {(
                                         (version[1]["pass"] /
                                           (version[1]["pass"] +
                                             version[1]["fail"])) *
                                         100
-                                      ).toFixed(2)}%
+                                      ).toFixed(2)}
+                                      %
                                     </div>
                                   </div>
                                 </>
@@ -193,9 +258,19 @@ function SummaryCarousel() {
               </>
             );
           })}
+          <div className="generate-btn-div">
+            <button
+              className="generate-pdf-btn"
+              onClick={() => {
+                setGeneratePdfModal(true);
+              }}
+            >
+              Generate Report
+            </button>
+          </div>
         </div>
-        <Tooltip id="version-tooltip"/>
-        <Tooltip id="percentage-tooltip"/>
+        <Tooltip id="version-tooltip" />
+        <Tooltip id="percentage-tooltip" />
         <Modal
           isOpen={isOpen}
           contentLabel="Test Modal"
@@ -248,6 +323,182 @@ function SummaryCarousel() {
                 View More
               </button>
             ) : null}
+          </div>
+        </Modal>
+        <Modal
+          isOpen={generatePdfModal}
+          style={customStylesTwo}
+          onRequestClose={closePdfModal}
+        >
+          <h4>
+            Select Start Date:{" "}
+            <DatePicker
+              wrapperClassName="datePicker"
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              onChangeRaw={(e) => {
+                e.target.value = "";
+                setStartDate("");
+                setEndDate("");
+              }}
+            ></DatePicker>
+          </h4>
+          <h4>
+            Select End Date:{" "}
+            <DatePicker
+              wrapperClassName="datePicker"
+              disabled={startDate === "" || startDate === null ? true : false}
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              minDate={startDate}
+              onChangeRaw={(e) => (e.target.value = "")}
+            ></DatePicker>
+          </h4>
+          <div className="generate-btn-div">
+            <button
+              className="generate-pdf-btn2"
+              onClick={() => {
+                doc.setFontSize(20);
+
+                doc.text(
+                  `Test Run Result report from ${startDate
+                    .toString()
+                    .slice(4, 15)} to ${endDate.toString().slice(4, 15)}`,
+                  24,
+                  15
+                );
+                const formattedStartDate = formatDate(
+                  startDate.toString().slice(4, 15)
+                );
+                const formattedEndDate = formatDate(
+                  new Date(
+                    new Date(endDate).setDate(new Date(endDate).getDate() + 1)
+                  )
+                    .toString()
+                    .slice(4, 15)
+                );
+                let linenumber = 30;
+                let serviceName = "";
+                {
+                  Array.from(dataValue?.summaryMap.keys()).map((data, i) => {
+                    total = 0;
+                    doc.setFontSize(22);
+                    doc.text(`${data} group`, 8, linenumber);
+                    linenumber += 10;
+                    serviceName = data;
+                    serviceArray = [];
+                    percentageArray = [];
+                    totalArray = [];
+                    {
+                      Array.from(dataValue?.summaryMap?.get(data)?.keys()).map(
+                        (service, i) => {
+                          let pass = 0;
+                          let fail = 0;
+                          {
+                            Array.from(
+                              dataValue?.summaryMap
+                                ?.get(data)
+                                ?.get(service)
+                                ?.entries()
+                            )
+                              .sort((a, b) =>
+                                a[1]["test_list"][0].date <
+                                b[1]["test_list"][0].date
+                                  ? 1
+                                  : -1
+                              )
+                              .map((version, i) => {
+                                for (
+                                  let i = 0;
+                                  i < version[1].test_list.length;
+                                  i++
+                                ) {
+                                  if (
+                                    version[1].test_list[i].date >=
+                                      formattedStartDate &&
+                                    version[1].test_list[i].date <
+                                      formattedEndDate
+                                  ) {
+                                    pass =
+                                      version[1].test_list[i].result === "PASS"
+                                        ? pass + 1
+                                        : pass;
+                                    fail =
+                                      version[1].test_list[i].result ===
+                                        "FAIL" ||
+                                      version[1].test_list[i].result === "ERROR"
+                                        ? fail + 1
+                                        : fail;
+                                    total += 1;
+                                  } else if (
+                                    version[1].test_list[i].date <
+                                    formattedStartDate
+                                  )
+                                    break;
+                                }
+                              });
+                            if (pass + fail > 0) {
+                              serviceArray.push(service);
+                              percentageArray.push(
+                                ((pass / (pass + fail)) * 100).toFixed(2)
+                              );
+                              totalArray.push(pass + fail);
+                            }
+                          }
+                        }
+                      );
+                    }
+                    doc.setFontSize(14);
+                    doc.text(
+                      `For ${serviceName} group , a total of ${total} test runs were triggered in the last month`,
+                      8,
+                      linenumber,
+                      {
+                        maxWidth: 200,
+                      }
+                    );
+                    linenumber += 8;
+                    if (serviceArray.length > 0)
+                      doc.text(
+                        `Test runs were triggered for ${serviceArray.map(
+                          (service, i) => service
+                        )} services with a pass percentage of ${percentageArray.map(
+                          (passPercentage) => passPercentage
+                        )} respectively`,
+                        8,
+                        linenumber,
+                        {
+                          maxWidth: 200,
+                        }
+                      );
+                    linenumber += 13;
+                    let body = [];
+                    for (let i = 0; i < serviceArray.length; i++) {
+                      body.push([
+                        serviceArray[i],
+                        totalArray[i],
+                        percentageArray[i],
+                      ]);
+                    }
+                    if (serviceArray.length > 0) {
+                      autotable(doc, {
+                        head: [
+                          ["Service", "Number of Test Runs", "Pass Percentage"],
+                        ],
+                        body: body,
+                        startY: linenumber,
+                      });
+                      linenumber += (serviceArray.length + 2) * 8.5;
+                    }
+                  });
+                }
+
+                doc.save("result.pdf");
+              }}
+              disabled={(startDate===''||startDate===null)||(endDate===''||endDate===null)}
+            >
+              Generate
+            </button>
           </div>
         </Modal>
       </>
