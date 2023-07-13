@@ -214,7 +214,14 @@ function SummaryCarousel() {
                                     }}
                                   >
                                     <div
-                                      className="card-Version"
+                                      className={`${
+                                        version[0].split(":")[1]?.length < 25 ||
+                                        (version[0].split(":")[1] ===
+                                          undefined &&
+                                          version[0]?.length < 25)
+                                          ? "card-Version"
+                                          : "card-Version-without-justify"
+                                      }`}
                                       data-tooltip-id="version-tooltip"
                                       data-tooltip-place="top"
                                       data-tooltip-content={version[0]}
@@ -495,7 +502,12 @@ function SummaryCarousel() {
 
                 doc.save("result.pdf");
               }}
-              disabled={(startDate===''||startDate===null)||(endDate===''||endDate===null)}
+              disabled={
+                startDate === "" ||
+                startDate === null ||
+                endDate === "" ||
+                endDate === null
+              }
             >
               Generate
             </button>
