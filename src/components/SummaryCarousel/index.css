@@ -240,3 +240,7 @@
     margin-top: 20px;
     padding: 2px;
 }
+
+.visibleSelect {
+    width: 300px;
+}

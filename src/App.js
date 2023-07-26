@@ -9,11 +9,15 @@ import TableOfRuns from "./components/TableOfRuns";
 export const ThemeContext = React.createContext(null);
 export const DataContext = React.createContext(null);
 export const LoadingContext = React.createContext(null);
-
+export const GroupDateContext = React.createContext(null);
+export const ProductDateContext = React.createContext(null);
 function App() {
   const [theme, setTheme] = useState("light");
   const [summaryMap, setSummaryMap] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [latestGroupDate, setLatestGroupDate] = useState(new Map());
+  const [latestProductDate, setLatestProductDate] = useState(new Map());
+
   useEffect(() => {
     let url = process.env.REACT_APP_QUERY_URL;
     const headers = {
@@ -27,7 +31,40 @@ function App() {
       .then((res) => {
         let curr = res.data.hits.hits;
         let curr_Map = new Map();
+        let latestGroupDate_map = new Map();
+        let latestProductDate_map = new Map();
         for (let i = 0; i < curr.length; i++) {
+          if (latestGroupDate_map.has(curr[i]._source.group) === false) {
+            latestGroupDate_map.set(
+              curr[i]._source.group,
+              curr[i]._source.date
+            );
+          } else {
+            if (
+              latestGroupDate_map.get(curr[i]._source.group) <
+              curr[i]._source.date
+            )
+              latestGroupDate_map.set(
+                curr[i]._source.group,
+                curr[i]._source.date
+              );
+          }
+
+          if (latestProductDate_map.has(curr[i]._source.product) === false) {
+            latestProductDate_map.set(
+              curr[i]._source.product,
+              curr[i]._source.date
+            );
+          } else {
+            if (
+              latestProductDate_map.get(curr[i]._source.product) <
+              curr[i]._source.date
+            )
+              latestProductDate_map.set(
+                curr[i]._source.product,
+                curr[i]._source.date
+              );
+          }
           if (curr_Map.has(curr[i]._source.group) === false) {
             curr_Map.set(curr[i]._source.group, new Map());
             curr_Map
@@ -124,6 +161,8 @@ function App() {
           }
         }
         setSummaryMap(curr_Map);
+        setLatestGroupDate(latestGroupDate_map);
+        setLatestProductDate(latestProductDate_map);
         setIsLoading(false);
       })
       .catch((e) => {
@@ -144,19 +183,23 @@ function App() {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <DataContext.Provider value={{ summaryMap }}>
-        <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
-          <div className="App" id={theme}>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<SummaryCarousel />}></Route>
-                <Route
-                  path="/table-view/:group_name/:product_name/*"
-                  element={<TableOfRuns />}
-                ></Route>
-              </Routes>
-            </BrowserRouter>
-          </div>
-        </LoadingContext.Provider>
+        <GroupDateContext.Provider value={{ latestGroupDate }}>
+          <ProductDateContext.Provider value={{ latestProductDate }}>
+            <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+              <div className="App" id={theme}>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<SummaryCarousel />}></Route>
+                    <Route
+                      path="/table-view/:result_till/:group_name/:product_name/*"
+                      element={<TableOfRuns />}
+                    ></Route>
+                  </Routes>
+                </BrowserRouter>
+              </div>
+            </LoadingContext.Provider>
+          </ProductDateContext.Provider>
+        </GroupDateContext.Provider>
       </DataContext.Provider>
     </ThemeContext.Provider>
   );

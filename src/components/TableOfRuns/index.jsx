@@ -10,7 +10,10 @@ import { Circles } from "react-loader-spinner";
 const TableOfRuns = () => {
   const params = useParams();
   const loadingValue = useContext(LoadingContext);
-  const { group_name, product_name } = params;
+  const { group_name, product_name, result_till } = params;
+  const result_till_value = result_till
+    .substring(5)
+    .concat("T00:00:00.000000+00:00");
   const version_number = params["*"];
   const dataValue = useContext(DataContext);
   const columns = useMemo(() => COLUMNS, []);
@@ -24,7 +27,8 @@ const TableOfRuns = () => {
       return dataValue.summaryMap
         ?.get(group_name)
         ?.get(product_name)
-        ?.get(version_number)["test_list"];
+        ?.get(version_number)
+        ["test_list"].filter((row_data) => row_data.date >= result_till_value);
     else return [];
   }, [dataValue, group_name, product_name, version_number]);
   const {
