@@ -23,9 +23,16 @@ function App() {
     const headers = {
       "Content-Type": "application/json",
     };
-    let data = {
-      size: 10000,
-    };
+    let data = JSON.stringify({
+      "size": 10000,
+      "sort": [
+        {
+          "date": {
+            "order": "desc"
+          }
+        }
+      ]
+    });
     axios
       .post(url, data, { headers })
       .then((res) => {
