@@ -79,6 +79,7 @@ function SummaryCarousel() {
         label: "Not older than 6 months",
       })
     );
+  sessionStorage.setItem("productName", "");
   let serviceArray = [];
   let percentageArray = [];
   let totalArray = [];
@@ -87,7 +88,10 @@ function SummaryCarousel() {
   const navigate = useNavigate();
   const goPrev = (service, number) => {
     let screen = document.querySelector(
-      `.scrollable-container-${service.split(" ").join("_")}-${number}`
+      `.scrollable-container-${service
+        .split(" ")
+        .join("_")
+        .replace(".", "valid")}-${number}`
     );
     let width = screen.clientWidth;
     screen.scrollLeft = screen.scrollLeft - width;
@@ -95,7 +99,10 @@ function SummaryCarousel() {
 
   const goNext = (service, number) => {
     let screen = document.querySelector(
-      `.scrollable-container-${service.split(" ").join("_")}-${number}`
+      `.scrollable-container-${service
+        .split(" ")
+        .join("_")
+        .replace(".", "valid")}-${number}`
     );
     let width = screen.clientWidth;
     screen.scrollLeft = screen.scrollLeft + width;
@@ -293,11 +300,34 @@ function SummaryCarousel() {
                       ) {
                         return (
                           <>
-                            <div className="service-title">{service}</div>
+                            <div className="service-title">
+                              {sessionStorage.getItem("productName") === "" ||
+                              sessionStorage
+                                .getItem("productName")
+                                .includes(`${service}`.split("_")[0]) == false
+                                ? `${service}`.split("_")[0]
+                                : ""}
+                            </div>
+
+                            {sessionStorage.getItem("productName") === "" ||
+                            sessionStorage
+                              .getItem("productName")
+                              .includes(`${service}`.split("_")[0]) === false
+                              ? sessionStorage.setItem(
+                                  "productName",
+                                  sessionStorage
+                                    .getItem("productName")
+                                    .concat("," + `${service}`.split("_")[0])
+                                )
+                              : ""}
+                            <div className="service-title">
+                              {service.split("_")[1]}
+                            </div>
                             <div
                               className={`insight-carousel-container scrollable-container-${service
                                 .split(" ")
-                                .join("_")}-${i}`}
+                                .join("_")
+                                .replace(".", "valid")}-${i}`}
                             >
                               <button
                                 className="prev-btn"

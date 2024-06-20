@@ -24,14 +24,14 @@ function App() {
       "Content-Type": "application/json",
     };
     let data = JSON.stringify({
-      "size": 10000,
-      "sort": [
+      size: 10000,
+      sort: [
         {
-          "date": {
-            "order": "desc"
-          }
-        }
-      ]
+          date: {
+            order: "desc",
+          },
+        },
+      ],
     });
     axios
       .post(url, data, { headers })
@@ -56,30 +56,24 @@ function App() {
                 curr[i]._source.date
               );
           }
-
-          if (latestProductDate_map.has(curr[i]._source.product) === false) {
-            latestProductDate_map.set(
-              curr[i]._source.product,
-              curr[i]._source.date
-            );
+          let productname = curr[i]._source.product.concat(
+            "_" + curr[i]._source.release
+          );
+          if (latestProductDate_map.has(productname) === false) {
+            latestProductDate_map.set(productname, curr[i]._source.date);
           } else {
-            if (
-              latestProductDate_map.get(curr[i]._source.product) <
-              curr[i]._source.date
-            )
-              latestProductDate_map.set(
-                curr[i]._source.product,
-                curr[i]._source.date
-              );
+            if (latestProductDate_map.get(productname) < curr[i]._source.date)
+              latestProductDate_map.set(productname, curr[i]._source.date);
           }
           if (curr_Map.has(curr[i]._source.group) === false) {
+            let productname = curr[i]._source.product.concat(
+              "_" + curr[i]._source.release
+            );
             curr_Map.set(curr[i]._source.group, new Map());
+            curr_Map.get(curr[i]._source.group).set(productname, new Map());
             curr_Map
               .get(curr[i]._source.group)
-              .set(curr[i]._source.product, new Map());
-            curr_Map
-              .get(curr[i]._source.group)
-              .get(curr[i]._source.product)
+              .get(productname)
               .set(curr[i]._source.version, {
                 pass: curr[i]._source.result === "PASS" ? 1 : 0,
                 fail: curr[i]._source.result === "PASS" ? 0 : 1,
@@ -88,21 +82,21 @@ function App() {
                     date: curr[i]._source.date,
                     result: curr[i]._source.result,
                     link: curr[i]._source.link,
+                    release: curr[i]._source.release,
                   }),
                 ],
               });
           } else {
+            let productname = curr[i]._source.product.concat(
+              "_" + curr[i]._source.release
+            );
             if (
-              curr_Map
-                .get(curr[i]._source.group)
-                .has(curr[i]._source.product) === false
+              curr_Map.get(curr[i]._source.group).has(productname) === false
             ) {
+              curr_Map.get(curr[i]._source.group).set(productname, new Map());
               curr_Map
                 .get(curr[i]._source.group)
-                .set(curr[i]._source.product, new Map());
-              curr_Map
-                .get(curr[i]._source.group)
-                .get(curr[i]._source.product)
+                .get(productname)
                 .set(curr[i]._source.version, {
                   pass: curr[i]._source.result === "PASS" ? 1 : 0,
                   fail: curr[i]._source.result === "PASS" ? 0 : 1,
@@ -111,19 +105,23 @@ function App() {
                       date: curr[i]._source.date,
                       result: curr[i]._source.result,
                       link: curr[i]._source.link,
+                      release: curr[i]._source.release,
                     }),
                   ],
                 });
             } else {
+              let productname = curr[i]._source.product.concat(
+                "_" + curr[i]._source.release
+              );
               if (
                 curr_Map
                   .get(curr[i]._source.group)
-                  .get(curr[i]._source.product)
+                  .get(productname)
                   .has(curr[i]._source.version) === false
               )
                 curr_Map
                   .get(curr[i]._source.group)
-                  .get(curr[i]._source.product)
+                  .get(productname)
                   .set(curr[i]._source.version, {
                     pass: curr[i]._source.result === "PASS" ? 1 : 0,
                     fail: curr[i]._source.result === "PASS" ? 0 : 1,
@@ -132,13 +130,17 @@ function App() {
                         date: curr[i]._source.date,
                         result: curr[i]._source.result,
                         link: curr[i]._source.link,
+                        release: curr[i]._source.release,
                       }),
                     ],
                   });
               else {
+                let productname = curr[i]._source.product.concat(
+                  "_" + curr[i]._source.release
+                );
                 let obj_map = curr_Map
                   .get(curr[i]._source.group)
-                  .get(curr[i]._source.product)
+                  .get(productname)
                   .get(curr[i]._source.version);
                 obj_map["pass"] =
                   obj_map["pass"] + (curr[i]._source.result === "PASS" ? 1 : 0);
@@ -157,11 +159,12 @@ function App() {
                     date: curr[i]._source.date,
                     result: curr[i]._source.result,
                     link: curr[i]._source.link,
+                    release: curr[i]._source.release,
                   })
                 );
                 curr_Map
                   .get(curr[i]._source.group)
-                  .get(curr[i]._source.product)
+                  .get(productname)
                   .set(curr[i]._source.version, obj_map);
               }
             }
