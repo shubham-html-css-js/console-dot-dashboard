@@ -1,4 +1,4 @@
-import React, { version } from "react";
+import React, { useMemo, version } from "react";
 import { DateTime } from "luxon";
 import { useContext } from "react";
 import { useState } from "react";
@@ -61,11 +61,26 @@ function SummaryCarousel() {
   const [chosenData, setChosenData] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState({
+    value: "All",
+    label: "All",
+  });
   const themeValue = useContext(ThemeContext);
   const dataValue = useContext(DataContext);
   const loadingValue = useContext(LoadingContext);
   const groupDateValue = useContext(GroupDateContext);
   const productDateValue = useContext(ProductDateContext);
+  const productOptions = useMemo(() => {
+    let productArray = [];
+    productArray.push({ value: "All", label: "All" });
+    Array.from(dataValue?.summaryMap.keys()).map((data, i) => {
+      Array.from(dataValue?.summaryMap?.get(data)?.keys()).map((service, j) => {
+        let value_val = data.concat(`#${j}`);
+        productArray.push({ value: value_val, label: service });
+      });
+    });
+    return productArray;
+  }, [dataValue]);
   let total = 0;
   let validData = 0;
   const doc = new jsPDF();
@@ -77,6 +92,14 @@ function SummaryCarousel() {
       JSON.stringify({
         value: "Not older than 6 months",
         label: "Not older than 6 months",
+      })
+    );
+  if (sessionStorage.getItem("selected Product") === null)
+    sessionStorage.setItem(
+      "selected Product",
+      JSON.stringify({
+        value: "All",
+        label: "All",
       })
     );
   sessionStorage.setItem("productName", "");
@@ -208,6 +231,18 @@ function SummaryCarousel() {
       sessionStorage.setItem("selected option", selected_option);
     }
   };
+  const handleProductChange = (selectedProductFromDropDown) => {
+    if (
+      selectedProductFromDropDown !==
+      JSON.parse(sessionStorage.getItem("selected Product"))
+    ) {
+      setSelectedProduct(selectedProductFromDropDown);
+      sessionStorage.setItem(
+        "selected Product",
+        JSON.stringify(selectedProductFromDropDown)
+      );
+    }
+  };
   const closePdfModal = () => {
     setGeneratePdfModal(false);
   };
@@ -224,6 +259,9 @@ function SummaryCarousel() {
     return (formattedDate += "T00:00:00.000000+00:00");
   };
   const visible_date = sessionStorage.getItem("valid date");
+  const selected_product = JSON.parse(
+    sessionStorage.getItem("selected Product")
+  );
   if (loadingValue.isLoading === true)
     return (
       <div className="loading-container">
@@ -287,8 +325,40 @@ function SummaryCarousel() {
               className="visibleSelect"
             ></Select>
           </label>
+
+          <label className="select-label">
+            <Select
+              options={productOptions}
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  width: "300px",
+                  backgroundColor:
+                    themeValue.theme === "light" ? "white" : "lightgrey",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  width: "300px",
+                  backgroundColor:
+                    themeValue.theme === "light" ? "white" : "lightgrey",
+                }),
+              }}
+              isClearable={false}
+              isSearchable={true}
+              defaultValue={JSON.parse(
+                sessionStorage.getItem("selected Product")
+              )}
+              onChange={handleProductChange}
+              className="visibleSelect"
+            ></Select>
+          </label>
+
           {Array.from(dataValue?.summaryMap.keys()).map((data, i) => {
-            if (groupDateValue.latestGroupDate.get(data) >= visible_date) {
+            if (
+              groupDateValue.latestGroupDate.get(data) >= visible_date &&
+              (selected_product.value === "All" ||
+                selected_product.value.split("#")[0] === data)
+            ) {
               return (
                 <>
                   <div className="product-title">{data}</div>
@@ -296,7 +366,9 @@ function SummaryCarousel() {
                     (service, i) => {
                       if (
                         productDateValue.latestProductDate.get(service) >=
-                        visible_date
+                          visible_date &&
+                        (selected_product.label === "All" ||
+                          selected_product.label === service)
                       ) {
                         return (
                           <>
